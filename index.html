@@ -367,7 +367,7 @@ $('#addIngredientBtn').addEventListener('click',addIngredient);
 $('#saveAllBtn').addEventListener('click',()=>{save(); toast('Cambios guardados.')});
 $('#saveFormulaBtn').addEventListener('click',()=>{save(); renderBoard(); toast('Fórmula guardada.')});
 $('#formulaName').addEventListener('input',e=>{const f=current(); f.name=e.target.value||'Sin nombre'; touch(f); save(); $('#editorTitle').textContent=`Editar · ${f.name}`; renderBoard()});
-$('#formulaCapacity').addEventListener('change',e=>{current().capacity=Number(e.target.value); touch(current()); save(); renderIngredients(); renderVisual(); renderBoard(); toast(`Botella cambiada a ${e.target.value} ml.`)});
+$('#formulaCapacity').addEventListener('change',e=>{const f=current(); const oldCapacity=Number(f.capacity)||DEFAULT_CAPACITY; const newCapacity=Number(e.target.value); if(!newCapacity||newCapacity===oldCapacity)return; const ratio=newCapacity/oldCapacity; catalog.forEach(item=>{f.amounts[item.id]=Math.round(amount(f,item.id)*ratio*1000)/1000}); f.capacity=newCapacity; touch(f); save(); renderIngredients(); renderVisual(); renderBoard(); toast(`Botella cambiada a ${newCapacity} ml · cantidades ajustadas proporcionalmente.`)});
 document.querySelectorAll('[data-workflow]').forEach(btn=>btn.addEventListener('click',()=>{current().workflow=btn.dataset.workflow; touch(current()); syncWorkflow(); save(); renderBoard(); toast('Estado actualizado.')}));
 $('#formulaStage').addEventListener('change',e=>{current().stage=e.target.value; touch(current()); save(); toast('Etapa actualizada.')});
 $('#formulaNotes').addEventListener('input',e=>{current().notes=e.target.value; touch(current()); save()});
