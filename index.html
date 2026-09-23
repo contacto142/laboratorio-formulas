@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Laboratorio de Fórmulas · V6 Final</title>
+<style>
+:root{
+  --bg:#f5f6f8;--panel:#fff;--text:#16191d;--muted:#727982;--line:#e3e6ea;--soft:#f8f9fb;
+  --accent:#171d29;--blue:#4aa7f8;--yellow:#efc84d;--green:#35b579;--ok:#1c875b;--warn:#a67700;--danger:#b42318;
+  --shadow:0 10px 30px rgba(17,24,39,.055);
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+.app{max-width:1460px;margin:0 auto;padding:22px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.title h1{margin:0 0 4px;font-size:23px;letter-spacing:-.03em}.title p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-weight:780;color:var(--text);cursor:pointer}.btn:hover{background:#fafbfc}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:var(--danger)}.btn.soft{background:var(--soft)}
+.section{background:var(--panel);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);padding:17px;margin-bottom:17px}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h2{font-size:16px;margin:0 0 4px}.section-head p{margin:0;color:var(--muted);font-size:11px;line-height:1.45}
+.label{display:block;font-size:10px;color:var(--muted);font-weight:830;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.field,.select,.textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 10px;outline:none}.field:focus,.select:focus,.textarea:focus{border-color:#adb4bd;box-shadow:0 0 0 3px rgba(17,24,39,.04)}
+.textarea{resize:vertical;line-height:1.5;min-height:110px}
+.hint{font-size:10px;color:var(--muted);line-height:1.45;margin-top:6px}
+.subtle{font-size:10px;color:var(--muted);line-height:1.45}
+
+
+.board-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 180px;gap:8px;margin-bottom:12px}.last-edit{font-size:9px;color:#969ca5;font-weight:720;margin-top:2px}.save-indicator.dirty{color:#a87700}.save-indicator.ok{color:#5d6874}.card-photo-dot{width:7px;height:7px;border-radius:50%;background:#8794a6;display:inline-block}.formula-card[hidden]{display:none!important}
+/* Board */
+.board{display:grid;gap:15px}.primary-zone{display:flex;justify-content:center}.formula-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.formula-card{position:relative;min-height:138px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:.15s}.formula-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(17,24,39,.06)}.formula-card.selected{border-color:#aab1bb;box-shadow:0 0 0 3px rgba(17,24,39,.045)}.formula-card.primary{width:min(520px,100%);min-height:150px;background:linear-gradient(180deg,#fff,#fbfbfd)}
+.status-light{position:absolute;right:13px;top:13px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d8dde3}.status-light.blue{background:var(--blue)}.status-light.yellow{background:var(--yellow)}.status-light.green{background:var(--green)}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-right:24px}.kicker{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#9399a2;font-weight:850}.card-title-wrap{display:flex;align-items:center;gap:8px;min-width:0}.card-title{font-size:17px;font-weight:820;letter-spacing:-.015em;word-break:break-word}.formula-card.primary .card-title{font-size:20px}.thumbhint{font-size:10px;color:var(--muted);font-weight:780}
+.capacity-line{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px}.badge-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.mini-indicator{width:8px;height:8px;border-radius:50%;background:#cad1d9;display:inline-block}.mini-indicator.on{background:#6c7c90}.note-counter{font-size:10px;color:var(--muted);font-weight:800}
+.composition-bar{height:10px;border-radius:999px;background:#eef1f4;overflow:hidden;display:flex}.composition-seg{height:100%;min-width:0}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}.volume-line{font-size:11px;color:#616873;font-weight:750}.card-tools{display:flex;gap:5px;flex-wrap:wrap}.iconbtn,.tinybtn{border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;color:#656c75;font-weight:800}.iconbtn{width:29px;height:29px}.tinybtn{padding:6px 8px;font-size:10px}.iconbtn:hover,.tinybtn:hover{background:#f7f8fa;color:#222}.drag{cursor:grab}.drag:active{cursor:grabbing}.formula-card.dragging{opacity:.42}
+.empty{padding:26px;border:1px dashed #c9ced5;border-radius:13px;color:var(--muted);text-align:center}
+
+/* Editor */
+.editor-layout{display:grid;grid-template-columns:minmax(390px,.8fr) minmax(560px,1.2fr);gap:15px;align-items:start}
+.visual-card{position:sticky;top:13px}.panel{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px}.panel+.panel{margin-top:11px}.meta-row{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-bottom:11px}
+.bottle-stage{position:relative;min-height:500px;border:1px solid #eceff2;background:linear-gradient(180deg,#fbfcfd,#f2f4f6);border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}.bottle-wrap{position:relative;width:min(88%,470px);aspect-ratio:1/1}.bottle-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;pointer-events:none;filter:drop-shadow(0 12px 15px rgba(0,0,0,.10))}.liquid-window{position:absolute;left:33.9%;width:32.4%;top:22.4%;bottom:8.3%;z-index:2;overflow:hidden;border-radius:24% 24% 14% 14% / 8% 8% 7% 7%;clip-path:polygon(11% 5%,89% 5%,98% 11%,100% 18%,100% 98%,94% 100%,6% 100%,0 98%,0 18%,2% 11%);background:rgba(255,255,255,.24)}.liquid-stack{position:absolute;inset:0;display:flex;flex-direction:column-reverse;justify-content:flex-start;mix-blend-mode:multiply}.segment{width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border-top:1px solid rgba(255,255,255,.52);transition:height .18s}.segment-label{font-size:9px;font-weight:850;color:rgba(20,20,25,.76);white-space:nowrap;text-shadow:0 1px 1px rgba(255,255,255,.65)}.ticks{position:absolute;right:6%;top:24%;height:66%;width:70px;z-index:4;pointer-events:none}.tick{position:absolute;right:0;display:flex;align-items:center;gap:5px;color:#818791;font-size:9px;font-weight:750;transform:translateY(50%)}.tick:before{content:"";width:13px;height:1px;background:#aeb4bb}
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.stat{border:1px solid var(--line);border-radius:10px;padding:9px}.stat span{display:block;font-size:8px;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.06em}.stat strong{font-size:17px}.progress{height:8px;background:#edf0f2;border-radius:999px;overflow:hidden;margin-top:9px}.progress>div{height:100%;background:#222a36}.status-line{font-size:11px;color:var(--muted);font-weight:700;margin-top:6px}.status-line.ok{color:var(--ok)}.status-line.warn{color:var(--warn)}.status-line.danger{color:var(--danger)}
+.ingredient-list{display:flex;flex-direction:column;gap:7px}.ingredient{display:grid;grid-template-columns:20px minmax(150px,1fr) 110px 62px;align-items:center;gap:8px;border:1px solid var(--line);border-radius:11px;padding:8px}.swatch-dot{width:14px;height:14px;border-radius:50%;margin:auto}.name-input,.ml-input{width:100%;border:1px solid transparent;background:transparent;border-radius:7px;padding:7px 8px;outline:none}.name-input:focus,.ml-input:focus{border-color:#d3d7dc;background:#fff}.ml-wrap{position:relative}.ml-wrap:after{content:"ml";position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);font-weight:700}.ml-input{text-align:right;padding-right:25px}.pct{text-align:right;font-size:11px;font-weight:820;color:#555d68}.add-btn{width:100%;margin-top:8px;border:1px dashed #c8cdd3;background:#fafbfc;border-radius:9px;padding:9px;font-weight:750;color:#555d67;cursor:pointer}
+.summary{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}.summary h3{font-size:13px;margin:0 0 7px}.summary table{width:100%;border-collapse:collapse;font-size:11px}.summary th,.summary td{padding:7px 5px;border-bottom:1px solid #eef0f2;text-align:left}.summary th{font-size:9px;text-transform:uppercase;color:var(--muted)}.summary .num{text-align:right}.summary tfoot td{font-weight:850;border-bottom:0}
+.detail-grid{display:grid;grid-template-columns:250px 1fr;gap:12px}.subpanel{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--soft)}.subpanel+.subpanel{margin-top:10px}.subpanel h3{margin:0 0 8px;font-size:12px;letter-spacing:-.01em}
+.workflow-picker{display:grid;grid-template-columns:1fr;gap:8px}.workflow-btn{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 8px;display:flex;align-items:center;gap:8px;cursor:pointer;text-align:left}.workflow-btn:hover{background:#fafbfc}.workflow-btn.active{border-color:#aeb5be;box-shadow:0 0 0 3px rgba(17,24,39,.04)}.workflow-dot{width:12px;height:12px;flex:0 0 12px;border-radius:50%}.workflow-dot.blue{background:var(--blue)}.workflow-dot.yellow{background:var(--yellow)}.workflow-dot.green{background:var(--green)}.workflow-btn strong{font-size:11px;display:block}.workflow-btn span:last-child{font-size:9px;color:var(--muted);display:block;margin-top:1px}
+.image-box{border:1px dashed #cfd5dc;border-radius:12px;background:#fafbfd;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden}.image-box img{display:block;width:100%;height:100%;object-fit:cover}.image-empty{padding:16px;text-align:center;color:var(--muted);font-size:11px;line-height:1.45}.image-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.bitacora-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}.quicktypes{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;cursor:pointer;color:#525a66}.chip.active,.chip:hover{background:#f5f7f9;border-color:#b4bcc5}.log-compose{display:grid;grid-template-columns:1fr 150px;gap:8px;margin-bottom:10px}.log-compose textarea{grid-column:1/-1;min-height:90px}.bitacora-list{display:flex;flex-direction:column;gap:8px}.log-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}.log-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.log-meta-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.log-chip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800}.log-chip.observacion{background:#eef5ff;color:#2968ba}.log-chip.prueba{background:#fff8da;color:#8c6900}.log-chip.ajuste{background:#edf9f2;color:#0f6b47}.log-date{font-size:10px;color:var(--muted);font-weight:700}.linkbtn{border:0;background:transparent;color:#7a838d;cursor:pointer;font-size:11px;font-weight:800;padding:0}.linkbtn:hover{color:var(--danger)}.log-title{font-size:12px;font-weight:800;margin:0 0 4px}.log-text{margin:0;font-size:11px;line-height:1.5;color:#29303a;white-space:pre-wrap}.empty-note{border:1px dashed #d0d5db;border-radius:12px;padding:12px;text-align:center;color:var(--muted);font-size:11px;background:#fafbfc}.note-counter{font-size:10px;color:var(--muted);font-weight:800}
+.editor-footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:11px}.toast{position:fixed;right:18px;bottom:18px;background:#131923;color:#fff;border-radius:10px;padding:10px 13px;font-size:11px;font-weight:750;box-shadow:0 12px 28px rgba(0,0,0,.16);opacity:0;transform:translateY(7px);transition:.18s;pointer-events:none;z-index:100}.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:1000px){.formula-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.editor-layout{grid-template-columns:1fr}.visual-card{position:relative;top:0}}
+@media(max-width:680px){.board-toolbar{grid-template-columns:1fr}.app{padding:12px}.topbar{align-items:flex-start;flex-direction:column}.formula-grid{grid-template-columns:1fr}.section{padding:13px}.meta-row,.detail-grid,.log-compose{grid-template-columns:1fr}.ingredient{grid-template-columns:18px 1fr 88px 52px}.bottle-stage{min-height:420px}.card-bottom{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="title">
+      <h1>Laboratorio de Fórmulas</h1>
+      <p>Compara versiones, conserva una fórmula principal y documenta cada prueba con claridad.</p>
+    </div>
+    <div class="actions" style="align-items:center">
+      <span id="saveIndicator" style="font-size:10px;color:var(--muted);font-weight:800">Guardado</span>
+      <button class="btn" id="resetBtn">Restablecer</button>
+      <button class="btn" id="saveAllBtn">Guardar</button>
+      <button class="btn primary" id="addFormulaBtn">＋ Nueva fórmula</button>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-head"><div><h2>Fórmulas</h2><p>Vista resumida y ordenada. Abre una fórmula para editar estado, imagen, bitácora y composición.</p></div></div>
+    <div class="board-toolbar"><input id="searchFormula" class="field" placeholder="Buscar fórmula…" /><select id="filterStatus" class="select"><option value="all">Todos los estados</option><option value="preliminar">Preliminar</option><option value="proceso">En proceso</option><option value="ejecutado">Ejecutado</option></select></div>
+    <div id="board" class="board"></div>
+  </section>
+
+  <section class="section" id="editorSection">
+    <div class="section-head"><div><h2 id="editorTitle">Editar fórmula</h2><p>Los ingredientes mantienen el mismo color y orden en todas las fórmulas. Ahora cada versión también puede guardar imagen y bitácora.</p></div></div>
+    <div class="editor-layout">
+      <div class="visual-card">
+        <div class="panel">
+          <div class="meta-row">
+            <div><label class="label">Nombre de la fórmula</label><input id="formulaName" class="field" /></div>
+            <div><label class="label">Botella</label><select id="formulaCapacity" class="select"><option value="50">50 ml</option><option value="100">100 ml</option></select></div>
+          </div>
+          <div class="bottle-stage">
+            <div class="bottle-wrap">
+              <div class="liquid-window"><div id="liquidStack" class="liquid-stack"></div></div>
+              <img class="bottle-img" src="assets/botella-100ml.png" alt="Botella transparente" />
+              <div id="ticks" class="ticks"></div>
+            </div>
+          </div>
+          <div class="status-grid">
+            <div class="stat"><span>Usado</span><strong id="usedStat">0 ml</strong></div>
+            <div class="stat"><span>Disponible</span><strong id="leftStat">0 ml</strong></div>
+            <div class="stat"><span>Porcentaje</span><strong id="pctStat">0%</strong></div>
+          </div>
+          <div class="progress"><div id="progressBar"></div></div>
+          <div id="statusLine" class="status-line"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <label class="label">Ingredientes</label>
+          <div id="ingredientList" class="ingredient-list"></div>
+          <button id="addIngredientBtn" class="add-btn">＋ Agregar producto a todas las fórmulas</button>
+          <div class="hint">Cada producto pertenece a un catálogo común: mismo nombre, color y posición en todas las versiones.</div>
+          <div class="summary">
+            <h3>Resumen</h3>
+            <table>
+              <thead><tr><th>Ingrediente</th><th class="num">ml</th><th class="num">%</th></tr></thead>
+              <tbody id="summaryBody"></tbody>
+              <tfoot><tr><td>Total</td><td class="num" id="totalMl">0</td><td class="num" id="totalPct">0%</td></tr></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="detail-grid">
+            <div>
+              <div class="subpanel">
+                <h3>Estado general</h3>
+                <div id="workflowPicker" class="workflow-picker">
+                  <button class="workflow-btn" data-workflow="preliminar"><span class="workflow-dot blue"></span><span><strong>Preliminar</strong><span>Se está formulando.</span></span></button>
+                  <button class="workflow-btn" data-workflow="proceso"><span class="workflow-dot yellow"></span><span><strong>En proceso</strong><span>Se va a ejecutar.</span></span></button>
+                  <button class="workflow-btn" data-workflow="ejecutado"><span class="workflow-dot green"></span><span><strong>Ejecutado</strong><span>Ya está hecho.</span></span></button>
+                </div>
+                <div style="height:10px"></div>
+                <label class="label">Etapa de la fórmula</label>
+                <select id="formulaStage" class="select"><option>Idea inicial</option><option>En formulación</option><option>Prueba de estabilidad</option><option>Prueba en piel</option><option>Ajustes finales</option><option>Aprobada</option><option>Descartada</option></select>
+                <div class="hint">Mantén aquí la fase específica de trabajo, separada del color de estado.</div>
+              </div>
+              <div class="subpanel">
+                <h3>Imagen adjunta</h3>
+                <div id="formulaImageBox" class="image-box"><div class="image-empty">Sin imagen todavía.<br>Cuando fabriques la versión final o una muestra, puedes adjuntar su foto aquí.</div></div>
+                <div class="image-tools"><label for="formulaImageInput" class="btn soft">Subir imagen</label><button class="btn" id="removeImageBtn" type="button">Quitar</button></div>
+                <input id="formulaImageInput" type="file" accept="image/*" hidden />
+                <div class="hint">La imagen queda guardada en este prototipo del navegador. Se optimiza automáticamente para mantener el sistema liviano.</div>
+              </div>
+            </div>
+            <div>
+              <div class="subpanel" style="margin-bottom:12px">
+                <h3>Resumen breve</h3>
+                <textarea id="formulaNotes" class="textarea" placeholder="Resumen corto de esta versión: textura, aroma, absorción, sensación, decisión tomada..."></textarea>
+                <div class="hint">Úsalo como resumen ejecutivo de la fórmula actual.</div>
+              </div>
+              <div class="subpanel">
+                <div class="bitacora-head">
+                  <div><h3 style="margin-bottom:4px">Bitácora</h3><div class="subtle">Registro limpio de pruebas, ajustes y observaciones.</div></div>
+                  <div class="note-counter" id="logCount">0 registros</div>
+                </div>
+                <div class="quicktypes">
+                  <button class="chip active" type="button" data-logquick="observacion">Observación</button>
+                  <button class="chip" type="button" data-logquick="prueba">Prueba</button>
+                  <button class="chip" type="button" data-logquick="ajuste">Ajuste</button>
+                </div>
+                <div style="height:10px"></div>
+                <div class="log-compose">
+                  <input id="logTitle" class="field" placeholder="Título breve" />
+                  <select id="logType" class="select"><option value="observacion">Observación</option><option value="prueba">Prueba</option><option value="ajuste">Ajuste</option></select>
+                  <textarea id="logText" class="textarea" placeholder="Ej.: Se aumentó 2 ml de aroma. La sensación en piel mejoró y la absorción fue más rápida."></textarea>
+                </div>
+                <div class="actions" style="justify-content:flex-end;margin-bottom:10px"><button class="btn primary" id="addLogBtn" type="button">Agregar registro</button></div>
+                <div id="bitacoraList" class="bitacora-list"></div>
+              </div>
+            </div>
+          </div>
+          <div class="editor-footer">
+            <div class="actions"><button class="btn" id="duplicateBtn">Duplicar</button><button class="btn danger" id="deleteBtn">Eliminar</button></div>
+            <div class="actions"><button class="btn" id="makePrimaryBtn">☆ Hacer principal</button><button class="btn primary" id="saveFormulaBtn">Guardar fórmula</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast" class="toast">Cambios guardados.</div>
+<script>
+const STORAGE_KEY='labFormulasV5';
+const DEFAULT_CAPACITY=50;
+const baseCatalog=[
+ {id:'manteca',name:'Manteca',color:'#E1C59D'},
+ {id:'aceite-coco',name:'Aceite de coco',color:'#F1D26B'},
+ {id:'mica',name:'Mica',color:'#BF95E4'},
+ {id:'aroma',name:'Aroma',color:'#EFA0B3'},
+ {id:'vitamina-d',name:'Vitamina D',color:'#98CDA6'},
+ {id:'vitamina-h',name:'Vitamina H',color:'#92B8E5'}
+];
+const extraPalette=['#D79F72','#84C7BF','#B0A0D8','#E3B76D','#89B7CD','#C8D07D','#D594A8','#A5B7A1','#C59B73','#92A8CE'];
+const workflowMeta={preliminar:{label:'Preliminar',class:'blue'},proceso:{label:'En proceso',class:'yellow'},ejecutado:{label:'Ejecutado',class:'green'}};
+const logTypeMeta={observacion:'Observación',prueba:'Prueba',ajuste:'Ajuste'};
+let catalog=[]; let formulas=[]; let selectedId=null; let draggedId=null;
+const $=s=>document.querySelector(s); const clone=o=>JSON.parse(JSON.stringify(o));
+const uid=()=> 'f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const iid=()=> 'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const fmt=n=>Number(n||0).toLocaleString('es-CL',{maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+function newAmounts(seedIndex=0){
+  const sample=[[12,13,5,8,5,7],[10,12,5,8,5,5],[14,10,6,7,4,5],[11,11,4,9,5,6],[13,9,6,8,5,4],[8,15,5,8,6,4],[10,10,8,7,7,4]][seedIndex] || [10,12,5,8,5,5];
+  const out={}; catalog.forEach((x,i)=> out[x.id]=sample[i] ?? 0); return out;
+}
+function makeFormula(name='Nueva fórmula',idx=0){
+  const now=new Date().toISOString(); return {id:uid(),name,capacity:DEFAULT_CAPACITY,workflow:'preliminar',stage:'Idea inicial',notes:'',image:'',logs:[],amounts:newAmounts(idx),createdAt:now,updatedAt:now};
+}
+function seed(){
+  catalog=clone(baseCatalog);
+  formulas=[makeFormula('Fórmula 1',0),makeFormula('Fórmula 2',1),makeFormula('Fórmula 3',2),makeFormula('Fórmula 4',3),makeFormula('Fórmula 5',4),makeFormula('Fórmula 6',5),makeFormula('Fórmula 7',6)];
+  formulas[0].workflow='proceso';
+  formulas[0].stage='Prueba en piel';
+  formulas[0].notes='Versión base en evaluación. Mejor absorción, revisar aroma después de 30 minutos.';
+  formulas[0].logs=[{id:uid(),type:'prueba',title:'Primera prueba en piel',text:'Sin irritación inicial. La textura se siente bien, pero el aroma aún puede suavizarse.',createdAt:new Date().toISOString()}];
+  selectedId=formulas[0].id;
+}
+function current(){return formulas.find(f=>f.id===selectedId)||formulas[0]}
+function amount(f,id){return Math.max(0,Number(f?.amounts?.[id])||0)}
+function total(f){return catalog.reduce((s,x)=>s+amount(f,x.id),0)}
+function pct(f,id){return f?.capacity?amount(f,id)/f.capacity*100:0}
+function normalizeFormula(f){
+  f.capacity=[50,100].includes(Number(f.capacity))?Number(f.capacity):DEFAULT_CAPACITY;
+  f.workflow=workflowMeta[f.workflow]?f.workflow:'preliminar';
+  f.stage=f.stage||'Idea inicial';
+  f.notes=f.notes||'';
+  f.image=f.image||'';
+  f.logs=Array.isArray(f.logs)?f.logs:[];
+  f.updatedAt=f.updatedAt||f.createdAt||new Date().toISOString();
+  f.amounts=f.amounts||{};
+  catalog.forEach(x=>{if(f.amounts[x.id]==null)f.amounts[x.id]=0});
+  return f;
+}
+function markDirty(){const e=$('#saveIndicator');if(e){e.textContent='Guardando…';e.className='save-indicator dirty'}}
+function markSaved(){const e=$('#saveIndicator');if(e){e.textContent='Guardado';e.className='save-indicator ok'}}
+function touch(f=current()){if(f)f.updatedAt=new Date().toISOString();markDirty()}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({catalog,formulas,selectedId}));markSaved()}
+function migrateV4(){
+  try{
+    const old=JSON.parse(localStorage.getItem('labFormulasV4'));
+    if(!old?.formulas?.length||!old?.catalog?.length)return false;
+    catalog=old.catalog; formulas=old.formulas.map(normalizeFormula); selectedId=old.selectedId||old.formulas[0].id; save(); return true;
+  }catch{return false}
+}
+function migrateV2(){
+  try{
+    const old=JSON.parse(localStorage.getItem('labFormulasV2')); if(!old?.formulas?.length) return false;
+    catalog=clone(baseCatalog);
+    formulas=old.formulas.map((f,idx)=>{const amounts={}; catalog.forEach((c,i)=>amounts[c.id]=Math.max(0,Number(f.ingredients?.[i]?.ml)||0)); return {id:f.id||uid(),name:f.name||`Fórmula ${idx+1}`,capacity:100,workflow:f.workflow||'preliminar',stage:f.stage||'Idea inicial',notes:f.notes||'',image:'',logs:[],amounts,createdAt:f.createdAt||new Date().toISOString()}});
+    selectedId=old.selectedId||formulas[0].id; save(); return true;
+  }catch{return false}
+}
+function load(){
+  try{
+    const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(x?.formulas?.length && x?.catalog?.length){ catalog=x.catalog; formulas=x.formulas.map(normalizeFormula); selectedId=x.selectedId||x.formulas[0].id; return; }
+  }catch{}
+  if(!migrateV4() && !migrateV2()) seed();
+}
+function toast(msg){const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600)}
+function formatDate(iso){const d=new Date(iso); return d.toLocaleString('es-CL',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+function formatDateShort(iso){const d=new Date(iso);return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short'})}
+function syncQuickType(type){document.querySelectorAll('[data-logquick]').forEach(btn=>btn.classList.toggle('active',btn.dataset.logquick===type)); $('#logType').value=type;}
+
+function compositionHtml(f){
+  const denom=Math.max(f.capacity,total(f)); let html='';
+  catalog.forEach(c=>{const v=amount(f,c.id); if(!v) return; const w=v/denom*100; html+=`<div class="composition-seg" style="width:${w}%;background:${c.color}" title="${esc(c.name)} · ${fmt(pct(f,c.id))}%"></div>`});
+  return html;
+}
+function card(f,index,isPrimary){
+  const el=document.createElement('article'); const wf=workflowMeta[f.workflow]||workflowMeta.preliminar;
+  el.className='formula-card'+(isPrimary?' primary':'')+(f.id===selectedId?' selected':''); el.draggable=true; el.dataset.id=f.id;
+  el.innerHTML=`<span class="status-light ${wf.class}" title="${wf.label}"></span>
+    <div class="card-head"><div>
+      <div class="kicker">${isPrimary?'Fórmula principal':`Fórmula ${index+1}`}</div>
+      <div class="card-title-wrap"><div class="card-title">${esc(f.name)}</div>${f.image?'<span class="thumbhint">imagen</span>':''}</div>
+      <div class="capacity-line badge-line"><span>Botella ${f.capacity} ml</span><span class="mini-indicator ${f.logs?.length?'on':''}"></span><span class="note-counter">${f.logs?.length||0} notas</span>${f.image?'<span class="card-photo-dot" title="Tiene imagen"></span>':''}</div><div class="last-edit">Editada ${formatDateShort(f.updatedAt)}</div>
+    </div></div>
+    <div class="composition-bar">${compositionHtml(f)}</div>
+    <div class="card-bottom"><div class="volume-line">${fmt(total(f))} / ${f.capacity} ml</div>
+      <div class="card-tools">${isPrimary?'':`<button class="tinybtn" data-primary title="Hacer principal">Principal</button>`}<button class="iconbtn" data-up title="Subir">↑</button><button class="iconbtn" data-down title="Bajar">↓</button><button class="iconbtn drag" title="Arrastrar">⋮⋮</button><button class="tinybtn" data-open>Editar</button></div></div>`;
+  el.addEventListener('click',e=>{if(e.target.closest('button'))return; selectFormula(f.id)});
+  el.querySelector('[data-open]')?.addEventListener('click',()=>selectFormula(f.id));
+  el.querySelector('[data-primary]')?.addEventListener('click',()=>makePrimary(f.id));
+  el.querySelector('[data-up]')?.addEventListener('click',()=>move(f.id,-1));
+  el.querySelector('[data-down]')?.addEventListener('click',()=>move(f.id,1));
+  el.addEventListener('dragstart',()=>{draggedId=f.id; el.classList.add('dragging')});
+  el.addEventListener('dragend',()=>{draggedId=null; el.classList.remove('dragging')});
+  el.addEventListener('dragover',e=>e.preventDefault());
+  el.addEventListener('drop',e=>{e.preventDefault(); if(draggedId && draggedId!==f.id) reorder(draggedId,f.id)});
+  return el;
+}
+function filteredFormulas(){
+  const q=($('#searchFormula')?.value||'').trim().toLowerCase();
+  const st=$('#filterStatus')?.value||'all';
+  return formulas.filter(f=>(!q||f.name.toLowerCase().includes(q))&&(st==='all'||f.workflow===st));
+}
+function renderBoard(){
+  const board=$('#board'); board.innerHTML='';
+  if(!formulas.length){board.innerHTML='<div class="empty">No hay fórmulas.</div>'; return}
+  const visible=filteredFormulas();
+  if(!visible.length){board.innerHTML='<div class="empty">No hay fórmulas que coincidan con este filtro.</div>';return}
+  const primary=formulas[0];
+  if(visible.some(f=>f.id===primary.id)){const pz=document.createElement('div'); pz.className='primary-zone'; pz.appendChild(card(primary,0,true)); board.appendChild(pz)}
+  const rest=visible.filter(f=>f.id!==primary.id);
+  if(rest.length){const grid=document.createElement('div'); grid.className='formula-grid'; rest.forEach(f=>{const i=formulas.findIndex(x=>x.id===f.id);grid.appendChild(card(f,i,false))}); board.appendChild(grid)}
+}
+function selectFormula(id){selectedId=id; renderBoard(); renderEditor(); $('#editorSection').scrollIntoView({behavior:'smooth',block:'start'})}
+function reorder(fromId,toId){const a=formulas.findIndex(x=>x.id===fromId),b=formulas.findIndex(x=>x.id===toId); if(a<0||b<0)return; const [x]=formulas.splice(a,1); formulas.splice(b,0,x); selectedId=x.id; touch(x); save(); renderBoard(); renderEditor()}
+function move(id,dir){const i=formulas.findIndex(x=>x.id===id),j=i+dir; if(i<0||j<0||j>=formulas.length)return; [formulas[i],formulas[j]]=[formulas[j],formulas[i]]; selectedId=id; touch(current()); save(); renderBoard(); renderEditor()}
+function makePrimary(id){const i=formulas.findIndex(x=>x.id===id); if(i<=0)return; const [x]=formulas.splice(i,1); formulas.unshift(x); selectedId=id; touch(current()); save(); renderBoard(); renderEditor(); toast('Fórmula principal actualizada.')}
+
+function syncWorkflow(){const f=current(); document.querySelectorAll('[data-workflow]').forEach(b=>b.classList.toggle('active',b.dataset.workflow===f.workflow))}
+function renderTicks(){const f=current(),ticks=$('#ticks'); ticks.innerHTML=''; [0,.25,.5,.75,1].forEach(r=>{const d=document.createElement('div'); d.className='tick'; d.style.bottom=`${r*100}%`; d.textContent=`${fmt(f.capacity*r)} ml`; ticks.appendChild(d)})}
+function renderIngredients(){
+  const f=current(), list=$('#ingredientList'); list.innerHTML='';
+  catalog.forEach((c,i)=>{
+    const row=document.createElement('div'); row.className='ingredient';
+    row.innerHTML=`<span class="swatch-dot" style="background:${c.color}" title="Color común del producto"></span><input class="name-input" value="${esc(c.name)}" data-name="${i}" title="Cambiar este nombre lo actualiza en todas las fórmulas"><div class="ml-wrap"><input class="ml-input" type="number" min="0" step="0.5" value="${amount(f,c.id)}" data-ml="${c.id}"></div><div class="pct">${fmt(pct(f,c.id))}%</div>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-name]').forEach(x=>x.addEventListener('change',e=>{const item=catalog[+e.target.dataset.name]; item.name=e.target.value.trim()||item.name; formulas.forEach(touch); save(); renderBoard(); renderIngredients(); renderVisual(); toast('Nombre actualizado en todas las fórmulas.')}));
+  list.querySelectorAll('[data-ml]').forEach(x=>x.addEventListener('input',e=>{f.amounts[e.target.dataset.ml]=Math.max(0,Number(e.target.value)||0); touch(f); save(); renderVisual(); renderBoard()}));
+}
+function renderVisual(){
+  const f=current(); if(!f)return; const t=total(f),cap=f.capacity,stack=$('#liquidStack'); stack.innerHTML='';
+  catalog.forEach(c=>{const v=amount(f,c.id); if(!v)return; const h=Math.min(v/cap*100,100); const seg=document.createElement('div'); seg.className='segment'; seg.style.height=`${h}%`; seg.style.background=c.color; seg.innerHTML=h>=12?`<span class="segment-label">${esc(c.name)} · ${fmt(pct(f,c.id))}%</span>`:''; stack.appendChild(seg)});
+  $('#usedStat').textContent=`${fmt(t)} ml`; $('#leftStat').textContent=`${fmt(Math.max(0,cap-t))} ml`; $('#pctStat').textContent=`${fmt(t/cap*100)}%`; $('#progressBar').style.width=`${Math.min(100,t/cap*100)}%`;
+  const s=$('#statusLine');
+  if(t<cap){s.className='status-line warn'; s.textContent=`Faltan ${fmt(cap-t)} ml para completar la botella.`}
+  else if(Math.abs(t-cap)<.0001){s.className='status-line ok'; s.textContent=`✓ Fórmula completa: ${cap} ml / 100%.`}
+  else{s.className='status-line danger'; s.textContent=`⚠ Excede la capacidad en ${fmt(t-cap)} ml.`}
+  $('#summaryBody').innerHTML=catalog.filter(c=>amount(f,c.id)>0).map(c=>`<tr><td><span class="swatch-dot" style="display:inline-block;width:8px;height:8px;background:${c.color};margin-right:6px"></span>${esc(c.name)}</td><td class="num">${fmt(amount(f,c.id))}</td><td class="num">${fmt(pct(f,c.id))}%</td></tr>`).join('')||'<tr><td colspan="3" style="color:#8a9098">Sin ingredientes.</td></tr>';
+  $('#totalMl').textContent=fmt(t); $('#totalPct').textContent=`${fmt(t/cap*100)}%`; renderTicks();
+}
+function renderImage(){
+  const f=current(), box=$('#formulaImageBox');
+  if(!f?.image){ box.innerHTML='<div class="image-empty">Sin imagen todavía.<br>Cuando fabriques la versión final o una muestra, puedes adjuntar su foto aquí.</div>'; return; }
+  box.innerHTML=`<img src="${f.image}" alt="Imagen de ${esc(f.name)}" />`;
+}
+function renderBitacora(){
+  const f=current(), list=$('#bitacoraList'); const logs=Array.isArray(f.logs)?f.logs:[];
+  $('#logCount').textContent=`${logs.length} ${logs.length===1?'registro':'registros'}`;
+  if(!logs.length){ list.innerHTML='<div class="empty-note">Sin registros aún. Usa la bitácora para dejar constancia de pruebas, ajustes y decisiones.</div>'; return; }
+  list.innerHTML=logs.map(log=>`<article class="log-item"><div class="log-meta"><div class="log-meta-left"><span class="log-chip ${log.type}">${logTypeMeta[log.type]||'Observación'}</span><span class="log-date">${formatDate(log.createdAt)}</span></div><button class="linkbtn" data-logremove="${log.id}">Eliminar</button></div>${log.title?`<div class="log-title">${esc(log.title)}</div>`:''}<p class="log-text">${esc(log.text)}</p></article>`).join('');
+  list.querySelectorAll('[data-logremove]').forEach(btn=>btn.addEventListener('click',()=>{const f=current(); f.logs=f.logs.filter(x=>x.id!==btn.dataset.logremove); touch(f); save(); renderBitacora(); renderBoard(); toast('Registro eliminado.')}));
+}
+async function optimizeImage(file){
+  const raw = await new Promise((resolve,reject)=>{const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file)});
+  return await new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{let w=img.width,h=img.height; const max=1200; const scale=Math.min(1,max/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale); const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; canvas.getContext('2d').drawImage(img,0,0,w,h); resolve(canvas.toDataURL('image/jpeg',0.86));};
+    img.onerror=reject; img.src=raw;
+  });
+}
+function renderEditor(){
+  const f=current(); if(!f){$('#editorSection').style.display='none'; return}
+  $('#editorSection').style.display='block'; $('#editorTitle').textContent=`Editar · ${f.name}`;
+  $('#formulaName').value=f.name; $('#formulaCapacity').value=String(f.capacity); $('#formulaStage').value=f.stage; $('#formulaNotes').value=f.notes||'';
+  $('#logTitle').value=''; $('#logText').value=''; syncQuickType('observacion'); syncWorkflow(); renderIngredients(); renderVisual(); renderImage(); renderBitacora();
+  $('#makePrimaryBtn').disabled=formulas[0]?.id===f.id; $('#makePrimaryBtn').textContent=formulas[0]?.id===f.id?'★ Fórmula principal':'☆ Hacer principal';
+}
+function addFormula(){const n=formulas.length+1, f=makeFormula(`Fórmula ${n}`,n); formulas.push(f); selectedId=f.id; save(); renderBoard(); renderEditor(); toast('Nueva fórmula creada en 50 ml.')}
+function addIngredient(){const num=catalog.length+1, name=`Producto ${num}`, id=iid(), color=extraPalette[(catalog.length-baseCatalog.length)%extraPalette.length]; catalog.push({id,name,color}); formulas.forEach(f=>f.amounts[id]=0); save(); renderIngredients(); renderBoard(); renderVisual(); toast('Producto agregado al catálogo común.')}
+
+$('#addFormulaBtn').addEventListener('click',addFormula);
+$('#addIngredientBtn').addEventListener('click',addIngredient);
+$('#saveAllBtn').addEventListener('click',()=>{save(); toast('Cambios guardados.')});
+$('#saveFormulaBtn').addEventListener('click',()=>{save(); renderBoard(); toast('Fórmula guardada.')});
+$('#formulaName').addEventListener('input',e=>{const f=current(); f.name=e.target.value||'Sin nombre'; touch(f); save(); $('#editorTitle').textContent=`Editar · ${f.name}`; renderBoard()});
+$('#formulaCapacity').addEventListener('change',e=>{current().capacity=Number(e.target.value); touch(current()); save(); renderIngredients(); renderVisual(); renderBoard(); toast(`Botella cambiada a ${e.target.value} ml.`)});
+document.querySelectorAll('[data-workflow]').forEach(btn=>btn.addEventListener('click',()=>{current().workflow=btn.dataset.workflow; touch(current()); syncWorkflow(); save(); renderBoard(); toast('Estado actualizado.')}));
+$('#formulaStage').addEventListener('change',e=>{current().stage=e.target.value; touch(current()); save(); toast('Etapa actualizada.')});
+$('#formulaNotes').addEventListener('input',e=>{current().notes=e.target.value; touch(current()); save()});
+document.querySelectorAll('[data-logquick]').forEach(btn=>btn.addEventListener('click',()=>syncQuickType(btn.dataset.logquick)));
+$('#logType').addEventListener('change',e=>syncQuickType(e.target.value));
+$('#addLogBtn').addEventListener('click',()=>{const f=current(); const msg=$('#logText').value.trim(); if(!msg){toast('Escribe un detalle para la bitácora.'); return} const type=$('#logType').value; const title=$('#logTitle').value.trim(); f.logs.unshift({id:uid(),type,title,text:msg,createdAt:new Date().toISOString()}); touch(f); save(); renderBitacora(); renderBoard(); $('#logTitle').value=''; $('#logText').value=''; toast('Registro agregado a la bitácora.')});
+$('#formulaImageInput').addEventListener('change',async e=>{const file=e.target.files?.[0]; if(!file) return; try{current().image=await optimizeImage(file); touch(current()); save(); renderImage(); renderBoard(); toast('Imagen adjuntada.')}catch{toast('No fue posible cargar la imagen.')} finally{e.target.value=''}});
+$('#removeImageBtn').addEventListener('click',()=>{const f=current(); if(!f.image){toast('No hay imagen para quitar.'); return} f.image=''; touch(f); save(); renderImage(); renderBoard(); toast('Imagen eliminada.')});
+$('#makePrimaryBtn').addEventListener('click',()=>makePrimary(selectedId));
+$('#duplicateBtn').addEventListener('click',()=>{const src=clone(current()); src.id=uid(); src.name=`${src.name} · copia`; src.createdAt=new Date().toISOString(); src.updatedAt=src.createdAt; src.logs=clone(src.logs||[]); const i=formulas.findIndex(x=>x.id===selectedId); formulas.splice(i+1,0,src); selectedId=src.id; save(); renderBoard(); renderEditor(); toast('Fórmula duplicada.')});
+$('#deleteBtn').addEventListener('click',()=>{if(formulas.length<=1){toast('Debe quedar al menos una fórmula.'); return} if(!confirm('¿Eliminar esta fórmula?')) return; const i=formulas.findIndex(x=>x.id===selectedId); formulas.splice(i,1); selectedId=formulas[Math.max(0,i-1)]?.id||formulas[0]?.id; save(); renderBoard(); renderEditor(); toast('Fórmula eliminada.')});
+$('#resetBtn').addEventListener('click',()=>{if(!confirm('¿Restablecer la demostración?')) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem('labFormulasV4'); localStorage.removeItem('labFormulasV2'); seed(); save(); renderBoard(); renderEditor(); toast('Demostración restablecida.')});
+
+$('#searchFormula').addEventListener('input',renderBoard);
+$('#filterStatus').addEventListener('change',renderBoard);
+load(); renderBoard(); renderEditor(); markSaved();
+</script>
+</body>
+</html>
